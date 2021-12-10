@@ -1,0 +1,60 @@
+---
+title: "Math598FinalProject"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data = read.csv('/Users/dr.z/Desktop/Math 598 Final Project/chart.csv')
+#View(data)
+```
+
+```{r}
+data$DateTime = as.POSIXct(data$DateTime)
+plot(data$DateTime, data$Users, type='l', col='blue')
+```
+
+The data has a clear trend, so we will take a log transformation.
+
+```{r}
+logUsers = log(data$Users)
+plot(data$DateTime, logUsers, type='l', col='blue')
+```
+
+With the trend eliminatedd, we will now look at the ACF and PACF of the log transformed data.
+
+```{r}
+acf(logUsers, na.action = na.pass)
+pacf(logUsers, na.action = na.pass)
+```
+
+The ACF decays slowly, so we will take the first difference. We can see that there is a seasonal component (?) every 7 lags in the ACF.
+
+```{r}
+diff_Users = diff(logUsers)
+acf(diff_Users, na.action = na.pass)
+pacf(diff_Users, na.action = na.pass)
+```
+
+There is nonstationarity in the seasonal component, so we will take a seasonal difference with s = 12 (? might change later).
+
+```{r}
+diff2_Users = diff(diff_Users, 12)
+acf(diff2_Users, na.action = na.pass)
+pacf(diff2_Users, na.action = na.pass)
+```
+
+```{r}
+diff3_Users = diff(diff2_Users, 12)
+acf(diff3_Users, na.action = na.pass)
+pacf(diff3_Users, na.action = na.pass)
+```
+
+```{r}
+sarima(x, 1, 1, 0, P = 1, D = 1, Q = 0, S = 12)
+```
+
+
