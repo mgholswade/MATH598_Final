@@ -5,19 +5,125 @@ output: html_notebook
 
 ```{r}
 library(astsa)
-
+library(xts)
+library(tsbox)
+library(MASS)
 ```
 
 ```{r}
 setwd('~/Documents/projects/MATH598_Final')
 ```
 ```{r}
-userData = read.csv('../data/steamUsers.csv')
+userData = read.csv('/home/mholswade/Documents/projects/MATH598_Final/data/steamUsers.csv')
 
 ```
 
 Data Cleaning
 ```{r}
+times = as.Date(userData$DateTime,format='%Y-%m-%d')
+xtsdata = xts(userData$Users,times)
+tsdata = ts_ts(xtsdata)
+```
+
+```{r}
+preCOVIDdata = window(xtsdata, start = "2015-1-1", end = "2020-3-10")
+preCOVIDtsdata = ts_ts(preCOVIDdata)
+```
 
 
+```{r}
+trend = lm(preCOVIDtsdata ~ log(time(preCOVIDtsdata)) + factor(cycle(preCOVIDtsdata)))
+
+plot(trend$residuals)
+```
+
+
+```{r}
+plot(preCOVIDtsdata)
+
+plot(diff(preCOVIDdata))
+```
+
+
+
+Variance is not stable. Will perform log transform.
+
+```{r}
+
+
+
+diffdata = diff(preCOVIDtsdata)
+wdiffdata = diff(diffdata,lag = 7)
+
+plot(wdiffdata)
+par(mfrow=c(1,2))
+acf(wdiffdata,na.action = na.pass,lag.max=50)
+pacf(wdiffdata,na.action = na.pass,lag.max=50)
+```
+ACF is cutting off around lag 2s (3s?). PACF displaying geometric decay. SARIMA models with significant terms for AR and MA will be considered.
+
+```{r}
+AICtable = matrix(NA, 5, 5)
+BICtable = matrix(NA, 5, 5)
+dimnames(AICtable) =
+list(paste("p =", 0:4), paste("q =", 0:4))
+
+for (p in 0:4) {
+for (q in 0:4) {
+gt.arma=arima(wdiffdata, order=c(0,0,0), seasonal =
+list(order = c(p,0,q), period = 7), include.mean
+= FALSE)
+AICtable[p+1, q+1] = AIC(gt.arma)
+BICtable[p+1, q+1] = BIC(gt.arma)
+}}
+AICtable
+BICtable
+
+```
+```{r}
+candmod = arima(wdiffdata, order=c(0,0,0), seasonal =
+list(order = c(1,0,2), period = 7), include.mean
+= FALSE)
+
+plot(candmod$residuals)
+acf(candmod$residuals,na.action = na.pass)
+pacf(candmod$residuals,na.action = na.pass,lag.max=50)
+```
+SARIMA(1,1,2)_7 will be used for the model.
+
+
+```{r}
+AICtable = matrix(NA, 5, 5)
+BICtable = matrix(NA, 5, 5)
+dimnames(AICtable) =
+list(paste("p =", 0:4), paste("q =", 0:4))
+
+for (p in 0:4) {
+for (q in 0:4) {
+gt.arma=arima(wdiffdata, order=c(p,0,q), seasonal =
+list(order = c(1,0,2), period = 7), include.mean
+= FALSE)
+AICtable[p+1, q+1] = AIC(gt.arma)
+BICtable[p+1, q+1] = BIC(gt.arma)
+}}
+AICtable
+BICtable
+
+```
+
+ARIMA(3,1,4) performs best in BIC, but this goes above half seasonal lags. ARIMA(2,1,3) is a well fit alternative.
+
+```{r}
+candmod = arima(preCOVIDtsdata, order = c(2, 1, 3), seasonal =
+list(order = c(1,1,2), period = 7))
+
+candres = candmod$residuals
+acf(candres,na.action = na.pass,lag.max=50)
+pacf(candres,na.action = na.pass,lag.max=50)
+```
+
+
+```{r}
+plot(candres)
+plot(candmod$)
 ```
