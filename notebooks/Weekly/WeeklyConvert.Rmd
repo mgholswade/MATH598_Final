@@ -39,3 +39,17 @@ Create matrix to sum data
 mat = matrix(data,ncol=7)
 
 ```
+
+Code below from:
+https://community.rstudio.com/t/average-across-columns-with-missing-values/79942/3
+
+Averages daily data across weeks, dropping any NA daily data from average
+```{r}
+weekly=rowMeans(mat,na.rm = TRUE  )
+
+```
+
+```{r}
+data = ts(weekly,start=c(2010,01,04),freq=52)
+
+```
