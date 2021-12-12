@@ -44,3 +44,64 @@ plot(diff(diff(data),lag=7),type='l')
 ```
 
 1)Both ACF, PACF displaying geometric decay. Now ready to fit AR/MA terms
+2)Still appears to be yearly seasonality present in the fit data. May be worth exploring weekly/monthly frequencies to allow for fitting yearly trends. 
+
+
+```{r}
+##WARNING: This takes several minutes to execute. Only run if models need to be refit
+#Ctrl-Shift-C to block comment/uncomment
+
+# AICtable = matrix(NA, 5, 5)
+# BICtable = matrix(NA, 5, 5)
+# dimnames(AICtable) =
+# list(paste("p =", 0:4), paste("q =", 0:4))
+# 
+# for (p in 0:4) {
+# for (q in 0:4) {
+#   #Had to use method='ML' since conditional sum of squares was returning nonstationary AR coefficients.
+# gt.arma=arima(data, order=c(0,1,0), seasonal =
+# list(order = c(p,1,q), period = 7), include.mean
+# = FALSE,method="ML")
+# AICtable[p+1, q+1] = AIC(gt.arma)
+# BICtable[p+1, q+1] = BIC(gt.arma)
+# }}
+# AICtable
+# BICtable
+```
+
+SARIMA(1,1,2)_7 appears to be the best choice based on BIC.
+
+```{r}
+candmod = arima(data, order=c(0,1,0), seasonal =
+list(order = c(1,1,2), period = 7), include.mean
+= FALSE)
+
+plot(candmod$residuals)
+acf(candmod$residuals,na.action = na.pass)
+pacf(candmod$residuals,na.action = na.pass)
+```
+1)Improved seasonal effect in the PACF
+2)Ready to fit ARIMA(p,1,q)
+
+```{r}
+
+##WARNING: This takes several minutes to execute. Only run if models need to be refit
+#Ctrl-Shift-C to block comment/uncomment
+
+AICtable = matrix(NA, 4, 4)
+BICtable = matrix(NA, 4, 4)
+dimnames(AICtable) =
+list(paste("p =", 0:3), paste("q =", 0:3))
+
+for (p in 0:3) {
+for (q in 0:3) {
+  #Had to use method='ML' since conditional sum of squares was returning nonstationary AR coefficients.
+gt.arma=arima(data, order=c(p,1,q), seasonal =
+list(order = c(1,1,2), period = 7), include.mean
+= FALSE)
+AICtable[p+1, q+1] = AIC(gt.arma)
+BICtable[p+1, q+1] = BIC(gt.arma)
+}}
+AICtable
+BICtable
+```
