@@ -1,0 +1,99 @@
+---
+title: "Transformations"
+output: html_notebook
+---
+
+
+```{r}
+library(astsa)
+library(xts)
+library(tsbox)
+library(MASS)
+```
+
+```{r}
+setwd('~/Documents/projects/MATH598_Final')
+```
+
+Data Cleaning
+```{r}
+times = as.Date(userData$DateTime,format='%Y-%m-%d')
+xtsdata = xts(userData$Users,times)
+tsdata = ts_ts(xtsdata)
+```
+
+```{r}
+preCOVIDdata = window(xtsdata, start = "2010-1-1", end = "2020-3-10")
+preCOVIDtsdata = ts_ts(preCOVIDdata)
+```
+
+Check histograms
+```{r}
+hist(preCOVIDtsdata)
+plot(preCOVIDtsdata)
+```
+
+Data is roughlly uniform, will try some transformations for possible improvements to the fit
+
+
+
+```{r}
+logdata = log(preCOVIDtsdata)
+hist(logdata)
+plot(logdata)
+```
+change data to form with cycles
+```{r}
+data = ts(preCOVIDtsdata,freq=7
+          )
+
+```
+
+```{r}
+model = lm(data ~ time(data) + factor(cycle(data)))
+modelfit = ts(fitted(model),start=start(data),frequency=frequency(data))
+
+plot(data)
+lines(modelfit,col=2,lty=2)
+plot(model$residuals,type='l')
+```
+
+```{r}
+time2 = time(data)^2
+quadmodel = lm(data ~ time2 + time(data) + factor(cycle(data)))
+quadmodelfit = ts(fitted(quadmodel),start=start(data),frequency=frequency(data))
+
+plot(data)
+lines(quadmodelfit,col=2,lty=2)
+plot(quadmodel$residuals,type='l')
+```
+```{r}
+
+simpmodel = lm(data ~ + factor(cycle(data)))
+simpmodelfit = ts(fitted(simpmodel),start=start(data),frequency=frequency(data))
+
+plot(data)
+lines(simpmodelfit,col=2,lty=2)
+plot(simpmodel$residuals,type='l')
+```
+
+```{r}
+
+diffmodel = lm(diff(data) ~ + factor(cycle(data)))
+simpmodelfit = ts(fitted(),start=start(data),frequency=frequency(data))
+
+plot(data)
+lines(simpmodelfit,col=2,lty=2)
+plot(simpmodel$residuals,type='l')
+```
+
+```{r}
+detrended = model$residuals
+
+```
+
+Conclusions:
+1) 5 year data does not seem to be a long enough look to accurately establish an overall trend
+2) When 10 year trend is looked at, linear and quad fits are nearly identical.
+3) Transforming the data with candidate transformations did not seem to produce any meaningful results
+
