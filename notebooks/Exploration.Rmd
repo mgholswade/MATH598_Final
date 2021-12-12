@@ -46,6 +46,9 @@ plot(diff(preCOVIDdata))
 
 
 
+
+
+
 Variance is not stable. Will perform log transform.
 
 ```{r}

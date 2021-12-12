@@ -1,0 +1,46 @@
+---
+title: "ARIMA"
+output: html_notebook
+---
+
+```{r}
+library(astsa)
+library(xts)
+library(tsbox)
+library(MASS)
+```
+
+
+Must run functions in Detrend first
+
+```{r}
+data = detrended
+
+```
+
+```{r}
+
+acf(data,na.action=na.pass)
+pacf(data,na.action=na.pass)
+plot(data,type='l')
+```
+
+1) ACF does not decay, try differencing
+2) Both ACF and PACF show clear signs of seasonality present in correlation structure
+
+```{r}
+acf(diff(data),na.action=na.pass)
+pacf(diff(data),na.action=na.pass)
+plot(diff(data),type='l')
+```
+
+
+1) Still need to difference to account for seasonality in ACF
+
+```{r}
+acf(diff(diff(data),lag=7),na.action=na.pass)
+pacf(diff(diff(data),lag=7),na.action=na.pass)
+plot(diff(diff(data),lag=7),type='l')
+```
+
+1)Both ACF, PACF displaying geometric decay. Now ready to fit AR/MA terms

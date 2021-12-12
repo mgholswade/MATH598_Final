@@ -8,7 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-data = read.csv('/Users/dr.z/Desktop/Math 598 Final Project/chart.csv')
+data = read.csv('~/Documents/projects/MATH598_Final/data/steamUsers.csv')
 #View(data)
 ```
 
