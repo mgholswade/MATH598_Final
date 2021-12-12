@@ -1,0 +1,40 @@
+---
+title: "Transformations"
+output: html_notebook
+---
+
+
+```{r}
+library(astsa)
+library(xts)
+library(tsbox)
+library(MASS)
+```
+
+```{r}
+setwd('~/Documents/projects/MATH598_Final')
+```
+
+Data Cleaning
+```{r}
+userData = read.csv('/home/mholswade/Documents/projects/MATH598_Final/data/steamUsers.csv')
+```
+
+Use data from 1/4/2010 to 3/8/2020 so that only full weeks are included
+
+```{r}
+times = as.Date(userData$DateTime,format='%Y-%m-%d')
+xtsdata = xts(userData$Users,times)
+tsdata = ts_ts(xtsdata)
+```
+
+```{r}
+data = window(xtsdata, start = "2010-1-4", end = "2020-3-8")
+
+```
+
+
+```{r}
+data = aggregate(data, as.yearmon(time(data)), mean, na.rm = TRUE, , na.action=NULL)
+plot(data)
+```
