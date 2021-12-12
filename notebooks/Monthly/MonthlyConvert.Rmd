@@ -11,9 +11,7 @@ library(tsbox)
 library(MASS)
 ```
 
-```{r}
-setwd('~/Documents/projects/MATH598_Final')
-```
+
 
 Data Cleaning
 ```{r}
@@ -36,4 +34,5 @@ data = window(xtsdata, start = "2010-1-4", end = "2020-3-8")
 
 ```{r}
 data = aggregate(data, as.yearmon(time(data)), mean, na.rm = TRUE, , na.action=NULL)
+data = ts_ts(data)
 ```

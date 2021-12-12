@@ -2,6 +2,11 @@
 title: "ARIMA"
 output: html_notebook
 ---
+```{r}
+setwd('~/Documents/projects/MATH598_Final/notebooks/Monthly')
+
+source('MonthlyConvert.R')
+```
 
 ```{r}
 
@@ -9,5 +14,42 @@ acf(data,na.action=na.pass)
 pacf(data,na.action=na.pass)
 plot(data,type='l')
 ```
+```{r}
+
+acf(diff(data),na.action=na.pass)
+pacf(diff(data),na.action=na.pass)
+plot(diff(data),type='l')
+```
+
+
 ACF decays geometrically, PACF dies out after a single significant lag. This suggests an AR(1). 
 
+```{r}
+candmod = arima(data, order=c(1,0,0), include.mean
+= FALSE,method='ML')
+candmodfit = ts(data - candmod$residuals,start=start(data),frequency=frequency(data))
+
+plot(candmod$residuals)
+acf(candmod$residuals,na.action = na.pass)
+pacf(candmod$residuals,na.action = na.pass)
+
+plot(data,type='l')
+lines(candmodfit,type='l',col='red')
+
+```
+
+phi_1 ~= 1. Model nonstationary. Behaving as a random walk with drift. 
+
+```{r}
+candmod = arima(candmod$residuals, order=c(0,1,0), include.mean
+= FALSE,method='ML')
+candmodfit = ts(data - candmod$residuals,start=start(data),frequency=frequency(data))
+
+plot(candmod$residuals,type='p')
+acf(candmod$residuals,na.action = na.pass)
+pacf(candmod$residuals,na.action = na.pass)
+
+plot(data,type='p')
+lines(candmodfit,type='l',col='red')
+
+```

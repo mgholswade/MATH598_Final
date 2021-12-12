@@ -13,10 +13,7 @@ library(MASS)
 
 Must run functions in Detrend first
 
-```{r}
-data = detrended
 
-```
 
 ```{r}
 
