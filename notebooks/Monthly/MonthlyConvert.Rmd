@@ -36,5 +36,4 @@ data = window(xtsdata, start = "2010-1-4", end = "2020-3-8")
 
 ```{r}
 data = aggregate(data, as.yearmon(time(data)), mean, na.rm = TRUE, , na.action=NULL)
-plot(data)
 ```
