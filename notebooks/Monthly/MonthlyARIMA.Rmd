@@ -10,19 +10,57 @@ source('MonthlyConvert.R')
 
 ```{r}
 
-acf(data,na.action=na.pass)
-pacf(data,na.action=na.pass)
+acf(data,na.action=na.pass,lag.max=100)
+pacf(data,na.action=na.pass,lag.max=50)
 plot(data,type='l')
 ```
 ```{r}
 
-acf(diff(data),na.action=na.pass)
-pacf(diff(data),na.action=na.pass)
+acf(diff(data,lag=12),na.action=na.pass,100)
+pacf(diff(data,lag=12),na.action=na.pass,lag.max=100)
+plot(diff(data,lag=12),type='l')
+```
+```{r}
+
+acf(diff(diff(data,lag=12)),na.action=na.pass,100)
+pacf(diff(diff(data,lag=12)),na.action=na.pass,lag.max=100)
+plot(diff(diff(data,lag=12)),type='l')
+```
+
+
+
+```{r}
+
+acf(diff(data),na.action=na.pass,100)
+pacf(diff(data),na.action=na.pass,lag.max=100)
 plot(diff(data),type='l')
 ```
 
 
 ACF decays geometrically, PACF dies out after a single significant lag. This suggests an AR(1). 
+
+```{r}
+##WARNING: This takes several minutes to execute. Only run if models need to be refit
+#Ctrl-Shift-C to block comment/uncomment
+
+AICtable = matrix(NA, 5, 5)
+BICtable = matrix(NA, 5, 5)
+dimnames(AICtable) =
+list(paste("p =", 0:4), paste("q =", 0:4))
+
+for (p in 0:4) {
+for (q in 0:4) {
+  #Had to use method='ML' since conditional sum of squares was returning nonstationary AR coefficients.
+gt.arma=arima(data, order=c(0,1,0), seasonal =
+list(order = c(p,0,q), period = 12), include.mean
+= FALSE,method="ML")
+AICtable[p+1, q+1] = AIC(gt.arma)
+BICtable[p+1, q+1] = BIC(gt.arma)
+}}
+AICtable
+BICtable
+```
+Results suggest a SARIMA(1,0,1) or SARIMA(0,1,1) may be optimal.
 
 ```{r}
 candmod = arima(data, order=c(1,0,0), include.mean
@@ -41,7 +79,7 @@ lines(candmodfit,type='l',col='red')
 phi_1 ~= 1. Model nonstationary. Behaving as a random walk with drift. 
 
 ```{r}
-candmod = arima(candmod$residuals, order=c(0,1,0), include.mean
+candmod = arima(candmod$residuals, order=c(1,1,0), include.mean
 = FALSE,method='ML')
 candmodfit = ts(data - candmod$residuals,start=start(data),frequency=frequency(data))
 
