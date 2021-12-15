@@ -11,6 +11,11 @@ library(tsbox)
 library(MASS)
 ```
 
+```{r}
+setwd('~/Documents/projects/MATH598_Final/notebooks/Monthly')
+
+source('MonthlyConvert.R')
+```
 
 ```{r}
 data = ts(data,freq=12
@@ -55,15 +60,7 @@ lines(simpmodelfit,col=2,lty=2)
 plot(simpmodel$residuals,type='l')
 ```
 
-```{r}
-
-diffmodel = lm(diff(data) ~ + factor(cycle(data)))
-simpmodelfit = ts(fitted(),start=start(data),frequency=frequency(data))
-
-plot(data)
-lines(simpmodelfit,col=2,lty=2)
-plot(simpmodel$residuals,type='l')
-```
+s
 
 ```{r}
 detrended = model$residuals

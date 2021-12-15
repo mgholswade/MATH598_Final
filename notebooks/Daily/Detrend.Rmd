@@ -14,6 +14,9 @@ library(MASS)
 ```{r}
 setwd('~/Documents/projects/MATH598_Final')
 ```
+```{r}
+userData = read.csv('/home/mholswade/Documents/projects/MATH598_Final/data/steamUsers.csv')
+```
 
 Data Cleaning
 ```{r}
@@ -29,8 +32,8 @@ preCOVIDtsdata = ts_ts(preCOVIDdata)
 
 Check histograms
 ```{r}
-hist(preCOVIDtsdata)
-plot(preCOVIDtsdata)
+hist(preCOVIDtsdata,main='Histogram of pre COVID-19 user numbers',xlab='Number of Users')
+plot(preCOVIDtsdata,main='Plot of pre COVID-19 User Numbers',ylab='Number of Users')
 ```
 
 Data is roughlly uniform, will try some transformations for possible improvements to the fit
@@ -39,12 +42,12 @@ Data is roughlly uniform, will try some transformations for possible improvement
 
 ```{r}
 logdata = log(preCOVIDtsdata)
-hist(logdata)
-plot(logdata)
+hist(logdata,main='Plot of pre COVID-19 User Numbers (log transform)',xlab='Number of Users')
+plot(logdata,main='Plot of pre COVID-19 User Numbers (log transform)',ylab='Number of Users')
 ```
 change data to form with cycles
 ```{r}
-data = ts(preCOVIDtsdata,freq=7
+data = ts(logdata,freq=7
           )
 
 ```
@@ -53,9 +56,9 @@ data = ts(preCOVIDtsdata,freq=7
 model = lm(data ~ time(data) + factor(cycle(data)))
 modelfit = ts(fitted(model),start=start(data),frequency=frequency(data))
 
-plot(data)
+plot(data,main='Linear regression',ylab='Number of Users')
 lines(modelfit,col=2,lty=2)
-plot(model$residuals,type='l')
+plot(model$residuals,type='l',main='Residuals of Model',xlab='Time',ylab='Residual Value')
 ```
 
 ```{r}
